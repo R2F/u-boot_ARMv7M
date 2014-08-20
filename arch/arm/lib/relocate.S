@@ -7,6 +7,10 @@
  */
 
 #include <linux/linkage.h>
+#include <config.h>
+#if defined(CONFIG_CORTEX_M)
+#include <asm/armv7m.h>
+#endif
 
 /*
  * void relocate_code(addr_moni)

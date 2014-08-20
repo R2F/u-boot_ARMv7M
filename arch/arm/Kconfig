@@ -770,6 +770,9 @@ config TARGET_COLIBRI_PXA270
 config TARGET_JORNADA
 	bool "Support jornada"
 
+config TARGET_STM32F429_DISCOVERY
+	bool "Support STM32F429 Discovery"
+
 endchoice
 
 source "board/8dtech/eco5pk/Kconfig"
@@ -963,6 +966,7 @@ source "board/spear/x600/Kconfig"
 source "board/st-ericsson/snowball/Kconfig"
 source "board/st-ericsson/u8500/Kconfig"
 source "board/st/nhk8815/Kconfig"
+source "board/st/stm32f429-discovery/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"

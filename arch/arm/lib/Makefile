@@ -8,10 +8,14 @@
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _ashldi3.o _ashrdi3.o _divsi3.o \
 			_lshrdi3.o _modsi3.o _udivsi3.o _umodsi3.o div0.o
 
+ifdef CONFIG_CORTEX_M
+obj-y	+= vectors_m.o crt0.o
+else
 ifdef CONFIG_ARM64
 obj-y	+= crt0_64.o
 else
 obj-y	+= vectors.o crt0.o
+endif
 endif
 
 ifndef CONFIG_SPL_BUILD
@@ -35,11 +39,15 @@ endif
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= sections.o
+ifdef CONFIG_CORTEX_M
+obj-y	+= interrupts_m.o
+else
 ifdef CONFIG_ARM64
 obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o
+endif
 endif
 obj-y	+= reset.o
 
