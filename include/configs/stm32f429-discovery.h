@@ -15,13 +15,20 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR	0x10010000
 #define CONFIG_SYS_TEXT_BASE		0x08000000
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SYS_LOAD_ADDR		0x20000000
+/*
+ * Configuration of the external SDRAM memory
+ */
+#define CONFIG_NR_DRAM_BANKS		1
+#define CONFIG_SYS_RAM_SIZE		(8 * 1024 * 1024)
+#define CONFIG_SYS_RAM_CS		1
+#define CONFIG_SYS_RAM_FREQ_DIV		2
+#define CONFIG_SYS_RAM_BASE		0xD0000000
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_RAM_BASE
+#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_RAM_BASE + (1024 * 1024))
 
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_ENV_SIZE			1024
-#define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_STM32_GPIO
 #define CONFIG_STM32_SERIAL
@@ -31,16 +38,21 @@
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 
+/*
+ * Number of clock ticks in 1 sec
+ */
+#define CONFIG_SYS_HZ			1000
+
 #define CONFIG_ENV_IS_NOWHERE
 
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
-#define CONFIG_SYS_MAXARGS		8
+#define CONFIG_SYS_MAXARGS		16
 
-#define CONFIG_SYS_MALLOC_LEN		512
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
-#define CONFIG_STACKSIZE		(1024)
+#define CONFIG_STACKSIZE		(64 * 1024)
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
@@ -52,7 +64,7 @@
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
  * data on the serial line may interrupt the boot sequence.
  */
-#define CONFIG_BOOTDELAY		1
+#define CONFIG_BOOTDELAY		5
 #define CONFIG_AUTOBOOT
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT		\

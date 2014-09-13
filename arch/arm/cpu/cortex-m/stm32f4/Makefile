@@ -8,4 +8,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y := soc.o clock.o lowlevel_init.o reset.o
+obj-y := soc.o clock.o lowlevel_init.o

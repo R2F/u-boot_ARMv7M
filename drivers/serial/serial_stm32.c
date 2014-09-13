@@ -84,7 +84,8 @@ static void stm32_serial_putc(const char c)
 
 static int stm32_serial_tstc(void)
 {
-	return 0;
+	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
+	return (base->USART_SR & USART_SR_FLAG_RXNE);
 }
 
 static struct serial_device stm32_serial_drv = {

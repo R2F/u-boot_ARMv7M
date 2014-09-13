@@ -1,36 +1,162 @@
 /*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * (C) Copyright 2010,2011
+ * Vladimir Khusainov, Emcraft Systems, vlad@emcraft.com
  *
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
  *
- * SPDX-License-Identifier:	GPL-2.0+
- */
-
-/*
- * CPU specific code for an unknown cpu
- * - hence fairly empty......
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
  */
 
 #include <common.h>
 #include <command.h>
+#include <asm/armv7m.h>
 
-int cleanup_before_linux (void)
+//#include "envm.h"
+//#include "wdt.h"
+//#include "clock.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(CONFIG_ARMCORTEXM3_SOC_INIT)
+extern void cortex_m3_soc_init(void);
+#endif
+
+/*
+ * CPU specific initilization
+ */
+int arch_cpu_init(void)
 {
 	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * we turn off caches etc ...
+	 * Initialize the eNVM driver
 	 */
+	//envm_init();
 
-	disable_interrupts ();
-
-	/* Since the CM has unknown processor we do not support
-	 * cache operations
+	/*
+	 * Initialize the timers.
 	 */
+	//timer_init();
 
-	return (0);
+	/*
+	 * Initialize the clock frequencies.
+	 */
+	//clock_init();
+
+	/*
+	 * Architecture number; used by the Linux kernel.
+	 */
+	//gd->bd->bi_arch_number = MACH_TYPE_STM32;
+	gd->bd->bi_arch_number = 4888;
+
+	/*
+	 * SoC configuration code that cannot be put into drivers
+	 */
+#if defined(CONFIG_ARMCORTEXM3_SOC_INIT)
+	cortex_m3_soc_init();
+#endif
+
+	/*
+	 * Address of the kernel boot parameters.
+	 * Use start of the external RAM for that;
+	 * kernel resides at offset 0x8000 in the external RAM.
+	 */
+	gd->bd->bi_boot_params = CONFIG_SYS_RAM_BASE;
+
+        return 0;
+}
+
+/*
+ * This is called right before passing control to
+ * the Linux kernel point.
+ */
+int cleanup_before_linux(void)
+{
+	return 0;
+}
+
+/*
+ * H/w WDT strobe routine
+ */
+#if defined (CONFIG_HW_WATCHDOG)
+void hw_watchdog_reset(void)
+{
+	/*
+	 * Call the h/w-specific WDT strobe.
+	 */
+	wdt_strobe();
+}
+#endif
+
+/*
+ * Perform the low-level reset.
+ * Note that we need for this function to reside in RAM since it
+ * can be used to self-upgrade U-boot in eNMV.
+ */
+void
+#ifdef CONFIG_ARMCORTEXM3_RAMCODE
+	__attribute__((section(".ramcode")))
+	__attribute__((long_call))
+#endif
+	reset_cpu(ulong addr)
+{
+	/*
+	 * Perform reset but keep priority group unchanged.
+	 */
+	CM3_SCB_REGS->aircr = (CM3_AIRCR_VECTKEY << CM3_AIRCR_VECTKEY_SHIFT) |
+			  (CM3_SCB_REGS->aircr &
+			  (CM3_AIRCR_PRIGROUP_MSK << CM3_AIRCR_PRIGROUP_SHIFT))
+			  | CM3_AIRCR_SYSRESET;
+}
+
+/*
+ * Dump the registers on an exception we don't know how to process.
+ */
+u8 cortex_m3_irq_vec_get(void)
+{
+	return CM3_SCB_REGS->icsr & CM3_ICSR_VECTACT_MSK;
+}
+
+/*
+ * Add a custom MPU region
+ *
+ * region = Region Number
+ * address = Region Base Address
+ * attr = Region Attributes and Size
+ */
+void cortex_m3_mpu_add_region(u32 region, u32 address, u32 attr)
+{
+	CM3_MPU_REGS->rnr = region;
+	CM3_MPU_REGS->rbar = address;
+	CM3_MPU_REGS->rasr = attr;
+}
+
+/*
+ * Enable or disable configurable MPU memory regions
+ */
+void cortex_m3_mpu_enable(int enable)
+{
+	CM3_MPU_REGS->ctrl =
+		enable ? (CM3_MPU_CTRL_EN_MSK | CM3_MPU_CTRL_HFNMI_EN_MSK) : 0;
+}
+
+/*
+ * Configure the memory protection unit (MPU) to allow full access to
+ * the whole 4GB address space.
+ */
+void cortex_m3_mpu_full_access(void)
+{
+	cortex_m3_mpu_add_region(0, 0x00000000,
+		CM3_MPU_RASR_AP_RW_RW | CM3_MPU_RASR_SIZE_4GB |
+		CM3_MPU_RASR_EN);
+	cortex_m3_mpu_enable(1);
 }

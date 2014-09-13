@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/stm32.h>
 
 /* Basic working clock/flash configuration. Should make this more pretty
  * at some point
@@ -134,4 +135,18 @@ void configure_clocks(void)
 
 	/* Wait till the main PLL is used as system clock source */
 	while((rcc->CFGR & (uint32_t)0x0000000C) != 0x00000008);
+}
+
+/* Hardcoded like this for now because I'm lazy, fix later */
+unsigned long clock_val[CLOCK_END] = {
+		168000000,
+		168000000,
+		(168000000/4),
+		(168000000/2),
+		(168000000/8)
+};
+
+unsigned long clock_get(enum clock clck)
+{
+	return clock_val[clck];
 }
