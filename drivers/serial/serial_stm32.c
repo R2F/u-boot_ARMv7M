@@ -15,10 +15,11 @@
 #define STM32_USART1_BASE	0x40011000 /* APB2 */
 #define STM32_USART2_BASE	0x40004400 /* APB1 */
 
-#if defined(CONFIG_STM32_USART1)
-#define USART_BASE	STM32_USART1_BASE
 #define USART_SR_FLAG_RXNE	0x20
 #define USART_SR_FLAG_TXE	0x80
+
+#if defined(CONFIG_STM32_USART1)
+#define USART_BASE	STM32_USART1_BASE
 #define RCC_USART_ENABLE	0x10
 static const struct stm32_gpio_dsc usart_gpio[] = {
 		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},
