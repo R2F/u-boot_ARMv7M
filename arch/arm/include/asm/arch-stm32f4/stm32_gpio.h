@@ -63,17 +63,18 @@ enum stm32_gpio_pin {
  * GPIO roles (alternative functions); role determines by whom GPIO is used
  */
 enum stm32_gpio_role {
-	STM32_GPIO_ROLE_USART1 = 0,	/* USART1			      */
-	STM32_GPIO_ROLE_USART2,	/* USART2			      */
-	STM32_GPIO_ROLE_USART3,	/* USART3			      */
-	STM32_GPIO_ROLE_USART4,	/* USART4			      */
-	STM32_GPIO_ROLE_USART5,	/* USART5			      */
-	STM32_GPIO_ROLE_USART6,	/* USART6			      */
-	STM32_GPIO_ROLE_ETHERNET,	/* MAC				      */
-	STM32_GPIO_ROLE_MCO,		/* MC external output clock	      */
-	STM32_GPIO_ROLE_FSMC,		/* FSMC static memory controller      */
+	STM32_GPIO_ROLE_USART1 = 0,	/* USART1 */
+	STM32_GPIO_ROLE_USART2,	/* USART2 */
+	STM32_GPIO_ROLE_USART3,	/* USART3 */
+	STM32_GPIO_ROLE_USART4,	/* USART4 */
+	STM32_GPIO_ROLE_USART5,	/* USART5 */
+	STM32_GPIO_ROLE_USART6,	/* USART6 */
+	STM32_GPIO_ROLE_SPI4,	/* SPI4 */
+	STM32_GPIO_ROLE_ETHERNET,	/* MAC */
+	STM32_GPIO_ROLE_MCO,		/* MC external output clock */
+	STM32_GPIO_ROLE_FSMC,		/* FSMC static memory controller */
 	STM32_GPIO_ROLE_FMC = STM32_GPIO_ROLE_FSMC,
-	STM32_GPIO_ROLE_GPOUT,	/* GPOUT			      */
+	STM32_GPIO_ROLE_GPOUT,	/* GPOUT */
 
 	STM32_GPIO_ROLE_LAST		/* for internal usage, must be last   */
 };

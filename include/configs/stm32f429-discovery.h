@@ -32,6 +32,12 @@
 
 #define CONFIG_STM32_GPIO
 #define CONFIG_STM32_SERIAL
+#define CONFIG_STM32_SPI
+#define CONFIG_MMC
+#define CONFIG_MMC_SPI
+#define CONFIG_GENERIC_MMC
+
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_STM32_USART1
 
@@ -76,6 +82,20 @@
  * Command line configuration.
  */
 #include <config_cmd_default.h>
+
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT	       "U-Boot > "
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_MMC_SPI
+#define HAVE_BLOCK_DEVICE
 
 
 #endif /* __CONFIG_H */

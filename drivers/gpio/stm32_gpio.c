@@ -75,6 +75,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define STM32_GPIO_PUPD_DOWN	0x02
 
 /*
+ * AF5 selection
+ */
+#define STM32_GPIO_AF_SPI4	0x05
+
+/*
  * AF7 selection
  */
 #define STM32_GPIO_AF_USART1	0x07
@@ -128,7 +133,7 @@ static const unsigned long io_base[] = {
 static const u32 af_val[STM32_GPIO_ROLE_LAST] = {
 	STM32_GPIO_AF_USART1, STM32_GPIO_AF_USART2, STM32_GPIO_AF_USART3,
 	STM32_GPIO_AF_USART4, STM32_GPIO_AF_USART5, STM32_GPIO_AF_USART6,
-	STM32_GPIO_AF_MAC,
+	STM32_GPIO_AF_SPI4, STM32_GPIO_AF_MAC,
 	(u32)-1,
 	STM32_GPIO_AF_FSMC,
 	(u32)-1
@@ -172,6 +177,12 @@ s32 stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 		otype  = STM32_GPIO_OTYPE_PP;
 		ospeed = STM32_GPIO_SPEED_50M;
 		pupd   = STM32_GPIO_PUPD_UP;
+		mode   = STM32_GPIO_MODE_AF;
+		break;
+	case STM32_GPIO_ROLE_SPI4:
+		otype  = STM32_GPIO_OTYPE_PP;
+		ospeed = STM32_GPIO_SPEED_50M;
+		pupd   = STM32_GPIO_PUPD_NO;
 		mode   = STM32_GPIO_MODE_AF;
 		break;
 	case STM32_GPIO_ROLE_ETHERNET:
