@@ -6,4 +6,4 @@
 #
 
 extra-y	= start.o
-obj-y	= cpu.o timer.o
+obj-y	= cpu.o

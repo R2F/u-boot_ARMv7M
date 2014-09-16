@@ -11,7 +11,7 @@
 #define CONFIG_STM32F4DISCOVERY
 #define CONFIG_SYS_GENERIC_BOARD
 
-#define DEBUG
+/*#define DEBUG*/
 
 #define CONFIG_SYS_INIT_SP_ADDR	0x10010000
 #define CONFIG_SYS_TEXT_BASE		0x08000000
@@ -72,11 +72,6 @@
  */
 #define CONFIG_BOOTDELAY		5
 #define CONFIG_AUTOBOOT
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	"d"
-#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 /*
  * Command line configuration.
@@ -89,6 +84,8 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_TIMER
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
