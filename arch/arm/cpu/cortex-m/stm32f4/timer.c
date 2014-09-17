@@ -46,7 +46,11 @@ int timer_init()
 
 	STM32_RCC->apb1enr |= 0x01;
 
-	tim->psc = 168 - 1;
+	if(clock_get(CLOCK_HCLK) == clock_get(CLOCK_PCLK1)) {
+		tim->psc = (clock_get(CLOCK_PCLK1) / CONFIG_SYS_HZ_CLOCK) - 1;
+	} else {
+		tim->psc = ((clock_get(CLOCK_PCLK1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1;
+	}
 	tim->arr = 0xFFFFFFFF - 1;
 	tim->cr1 = 0x01;
 	tim->egr |= 0x01;
@@ -75,7 +79,6 @@ unsigned long long get_ticks(void)
 		gd->arch.tbl += (now - gd->arch.lastinc);
 	} else {
 		gd->arch.tbl += (0xFFFFFFFF - gd->arch.lastinc) + now;
-
 	}
 	gd->arch.lastinc = now;
 
