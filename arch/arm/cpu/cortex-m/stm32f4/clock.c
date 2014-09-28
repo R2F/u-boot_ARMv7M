@@ -11,142 +11,171 @@
 #include <common.h>
 #include <asm/arch/stm32.h>
 
-/* Basic working clock/flash configuration. Should make this more pretty
- * at some point
- */
+#define RCC_CR_HSION	0x00000001
+#define RCC_CR_HSEON	0x00010000
+#define RCC_CR_HSERDY	0x00020000
+#define RCC_CR_HSEBYP	0x00040000
+#define RCC_CR_CSSON	0x00080000
+#define RCC_CR_PLLON	0x01000000
+#define RCC_CR_PLLRDY	0x02000000
 
-#define STM32_RCC_BASE		0x40023800 /* AHB1 */
+#define RCC_PLLCFGR_PLLM_MASK	0x3F
+#define RCC_PLLCFGR_PLLN_MASK	0x7FC0
+#define RCC_PLLCFGR_PLLP_MASK	0x30000
+#define RCC_PLLCFGR_PLLQ_MASK	0xF000000
+#define RCC_PLLCFGR_PLLSRC	0x00400000
 
-struct stm32_rcc {
-	volatile uint32_t CR;
-	volatile uint32_t PLLCFGR;
-	volatile uint32_t CFGR;
-	volatile uint32_t CIR;
-	volatile uint32_t AHB1RSTR;
-	volatile uint32_t AHB2RSTR;
-	volatile uint32_t AHB3RSTR;
-	volatile uint32_t RESERVED1;
-	volatile uint32_t APB1RSTR;
-	volatile uint32_t APB2RSTR;
-	volatile uint32_t RESERVED2;
-	volatile uint32_t RESERVED3;
-	volatile uint32_t AHB1ENR;
-	volatile uint32_t AHB2ENR;
-	volatile uint32_t AHB3ENR;
-	volatile uint32_t RESERVED4;
-	volatile uint32_t APB1ENR;
-	volatile uint32_t APB2ENR;
-	volatile uint32_t RESERVED5;
-	volatile uint32_t RESERVED6;
-	volatile uint32_t AHB1LPENR;
-	volatile uint32_t AHB2LPENR;
-	volatile uint32_t AHB3LPENR;
-	volatile uint32_t RESERVED7;
-	volatile uint32_t APB1LPENR;
-	volatile uint32_t APB2LPENR;
-	volatile uint32_t RESERVED8;
-	volatile uint32_t RESERVED9;
-	volatile uint32_t BDCR;
-	volatile uint32_t CSR;
-	volatile uint32_t RESERVED10;
-	volatile uint32_t RESERVED11;
-	volatile uint32_t SSCGR;
-	volatile uint32_t PLLI2SCFGR;
+#define RCC_CFGR_AHB_PSC_MASK	0xF0
+#define RCC_CFGR_APB1_PSC_MASK	0x1C00
+#define RCC_CFGR_APB2_PSC_MASK	0xE000
+#define RCC_CFGR_SW0	0x00000001
+#define RCC_CFGR_SW1	0x00000002
+#define RCC_CFGR_SW_MASK	0x3
+#define RCC_CFGR_SW_HSI	0
+#define RCC_CFGR_SW_HSE	RCC_CFGR_SW0
+#define RCC_CFGR_SW_PLL	RCC_CFGR_SW1
+#define RCC_CFGR_SWS0	0x00000004
+#define RCC_CFGR_SWS1	0x00000008
+#define RCC_CFGR_SWS_MASK	0xC
+#define RCC_CFGR_SWS_HSI	0
+#define RCC_CFGR_SWS_HSE	RCC_CFGR_SWS0
+#define RCC_CFGR_SWS_PLL	RCC_CFGR_SWS1
+
+#define RCC_APB1_PWREN	0x10000000
+
+#define PWR_CR_VOS0	0x00004000
+#define PWR_CR_VOS1	0x00008000
+#define PWR_CR_VOS_MASK	0xC000
+#define PWR_CR_VOS_SCALE_MODE_1	(PWR_CR_VOS0 | PWR_CR_VOS1)
+#define PWR_CR_VOS_SCALE_MODE_2	(PWR_CR_VOS1)
+#define PWR_CR_VOS_SCALE_MODE_3	(PWR_CR_VOS0)
+
+struct pll_psc {
+	u8 pll_m;
+	u16 pll_n;
+	u8 pll_p;
+	u8 pll_q;
+	u8 ahb_psc;
+	u8 apb1_psc;
+	u8 apb2_psc;
 };
 
-#define STM32_PWR_BASE		0x40007000 /* APB1 */
+#define AHB_PSC_1	0
+#define AHB_PSC_2	0x8
+#define AHB_PSC_4	0x9
+#define AHB_PSC_8	0xA
+#define AHB_PSC_16	0xB
+#define AHB_PSC_64	0xC
+#define AHB_PSC_128	0xD
+#define AHB_PSC_256	0xE
+#define AHB_PSC_512	0xF
 
-struct stm32_pwr {
-	volatile uint32_t CR;
-	volatile uint32_t CSR;
+#define APB_PSC_1	0
+#define APB_PSC_2	0x4
+#define APB_PSC_4	0x5
+#define APB_PSC_8	0x6
+#define APB_PSC_16	0x7
+
+#if !defined(CONFIG_STM32_HSE_HZ)
+#error "CONFIG_STM32_HSE_HZ not defined!"
+#else
+#if (CONFIG_STM32_HSE_HZ == 8000000)
+struct pll_psc pll_psc_168 = {
+	.pll_m = 8,
+	.pll_n = 336,
+	.pll_p = 2,
+	.pll_q = 7,
+	.ahb_psc = AHB_PSC_1,
+	.apb1_psc = APB_PSC_4,
+	.apb2_psc = APB_PSC_2
 };
+#else
+#error "No PLL/Prescaler configuration for given CONFIG_STM32_HSE_HZ exists"
+#endif
+#endif
 
-#define STM32_FLASH_BASE	0x40023C00 /* AHB1 */
-
-struct stm32_flash {
-	volatile uint32_t ACR;
-	volatile uint32_t KEY;
-	volatile uint32_t OPTKEYR;
-	volatile uint32_t SR;
-	volatile uint32_t CR;
-	volatile uint32_t OPTCR;
-	volatile uint32_t OPTCR1;
-};
-
-#define PLL_M      8
-#define PLL_N      336
-#define PLL_P      2
-#define PLL_Q      7
-
-void reset_rcc(void)
+int configure_clocks(void)
 {
-	volatile struct stm32_rcc *rcc = (struct stm32_rcc*)STM32_RCC_BASE;
+	/* Reset RCC configuration */
+	STM32_RCC->cr |= RCC_CR_HSION;
+	STM32_RCC->cfgr = 0; /* Reset CFGR */
+	STM32_RCC->cr &= ~(RCC_CR_HSEON | RCC_CR_CSSON | RCC_CR_PLLON);
+	STM32_RCC->pllcfgr = 0x24003010; /* Reset PLLCFGR, value from RM */
+	STM32_RCC->cr &= ~RCC_CR_HSEBYP;
+	STM32_RCC->cir = 0; /* Disable all interrupts */
 
-	/* Set HSION */
-	rcc->CR |= (uint32_t)0x00000001;
-	/* Reset CFGR */
-	rcc->CFGR = 0x00000000;
-	/* Reset HSEON, CSSON and PLLON */
-	rcc->CR &= (uint32_t)0xFEF6FFFF;
-	/* Reset PLLCFGR */
-	rcc->PLLCFGR = 0x24003010;
-	/* Reset HSEBYP */
-	rcc->CR &= (uint32_t)0xFFFBFFFF;
-	/* Disable all interrupts */
-	rcc->CIR = 0x00000000;
-}
-
-void configure_clocks(void)
-{
-	volatile struct stm32_rcc *rcc = (struct stm32_rcc*)STM32_RCC_BASE;
-	volatile struct stm32_pwr *pwr = (struct stm32_pwr*)STM32_PWR_BASE;
-	volatile struct stm32_flash *flash = (struct stm32_flash*)STM32_FLASH_BASE;
-
-	/* Enable HSE */
-	rcc->CR |= 0x00010000;
-	/* Wait till HSE is ready */
-	while(!(rcc->CR & 0x00020000));
+	/* Configure for HSE+PLL operation */
+	STM32_RCC->cr |= RCC_CR_HSEON;
+	while(!(STM32_RCC->cr & RCC_CR_HSERDY));
 
 	/* Enable high performance mode, System frequency up to 168 MHz */
-	rcc->APB1ENR |= 0x10000000;
-	pwr->CR |= 0x00004000;
+	STM32_RCC->apb1enr |= RCC_APB1_PWREN;
+	STM32_PWR->cr = PWR_CR_VOS_SCALE_MODE_1;
 
-	/* HCLK  = SYSCLK / 1 */
-	/* PCLK2 = HCLK   / 2 */
-	/* PCLK1 = HCLK   / 4 */
-	rcc->CFGR |= 0x00009400;
+	STM32_RCC->cfgr |= ((pll_psc_168.ahb_psc << 4)
+			| (pll_psc_168.apb1_psc << 10)
+			| (pll_psc_168.apb2_psc << 13));
 
-	/* Configure the main PLL */
-	rcc->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) - 1) << 16) |
-			(0x400000) | (PLL_Q << 24);
+	STM32_RCC->pllcfgr = pll_psc_168.pll_m
+			| (pll_psc_168.pll_n << 6)
+			| (((pll_psc_168.pll_p >> 1) - 1) << 16)
+			| (pll_psc_168.pll_q << 24);
+	STM32_RCC->pllcfgr |= RCC_PLLCFGR_PLLSRC;
 
-	/* Enable the main PLL */
-	rcc->CR |= 0x01000000;
+	STM32_RCC->cr |= RCC_CR_PLLON;
 
-	/* Wait till the main PLL is ready */
-	while(!(rcc->CR & 0x02000000));
+	while(!(STM32_RCC->cr & RCC_CR_PLLRDY));
 
-	/* Configure Flash prefetch, Instruction cache, Data cache and wait state */
-	flash->ACR = 0x00000605;
+	/* 5 wait states, D-Cache enabled, I-Cache enabled */
+	STM32_FLASH->acr = 0x00000605;
 
-	/* Select the main PLL as system clock source */
-	rcc->CFGR &= (uint32_t)~(0x00000003);
-	rcc->CFGR |= 0x00000002;
+	STM32_RCC->cfgr &= ~(RCC_CFGR_SW0 | RCC_CFGR_SW1);
+	STM32_RCC->cfgr |= RCC_CFGR_SW_PLL;
 
-	/* Wait till the main PLL is used as system clock source */
-	while((rcc->CFGR & (uint32_t)0x0000000C) != 0x00000008);
+	while((STM32_RCC->cfgr & RCC_CFGR_SWS_MASK) != RCC_CFGR_SWS_PLL);
+
+	return 0;
 }
-
-/* Hardcoded like this for now because I'm lazy, fix later */
-unsigned long clock_val[CLOCK_END] = {
-		168000000,
-		168000000,
-		(168000000/4),
-		(168000000/2),
-		(168000000/8)
-};
 
 unsigned long clock_get(enum clock clck)
 {
-	return clock_val[clck];
+	u32 sysclk = 0;
+	u32 shift = 0;
+	/* Prescaler table lookups for clock computation */
+	u8 ahb_psc_table[16] =
+	{0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+	u8 apb_psc_table[8] =
+	{0, 0, 0, 0, 1, 2, 3, 4};
+
+	if((STM32_RCC->cfgr & RCC_CFGR_SWS_MASK) == RCC_CFGR_SWS_PLL) {
+		u16 pllm, plln, pllp;
+		pllm = (STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLM_MASK);
+		plln = ((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLN_MASK) >> 6);
+		pllp = ((((STM32_RCC->pllcfgr & RCC_PLLCFGR_PLLP_MASK) >> 16) + 1) << 1);
+		sysclk = ((CONFIG_STM32_HSE_HZ / pllm) * plln) / pllp;
+	}
+
+	switch(clck) {
+	case CLOCK_CORE:
+		return sysclk;
+		break;
+	case CLOCK_AHB:
+		shift = ahb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_AHB_PSC_MASK) >> 4)];
+		return sysclk >>= shift;
+		break;
+	case CLOCK_APB1:
+		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB1_PSC_MASK) >> 10)];
+		return sysclk >>= shift;
+		break;
+	case CLOCK_APB2:
+		shift = apb_psc_table[((STM32_RCC->cfgr & RCC_CFGR_APB2_PSC_MASK) >> 13)];
+		return sysclk >>= shift ;
+		break;
+	case CLOCK_SYSTICK:
+		return sysclk / 8;
+		break;
+	default:
+		return 0;
+		break;
+	}
 }

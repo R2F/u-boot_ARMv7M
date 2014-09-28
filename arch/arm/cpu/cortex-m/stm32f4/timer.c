@@ -42,14 +42,14 @@ struct stm32_tim2_5 {
 int timer_init()
 {
 	volatile struct stm32_tim2_5 *tim =
-		(struct stm32_tim_2_5 *)STM32_TIM2_BASE;
+			(struct stm32_tim2_5*)STM32_TIM2_BASE;
 
 	STM32_RCC->apb1enr |= 0x01;
 
-	if(clock_get(CLOCK_HCLK) == clock_get(CLOCK_PCLK1)) {
-		tim->psc = (clock_get(CLOCK_PCLK1) / CONFIG_SYS_HZ_CLOCK) - 1;
+	if(clock_get(CLOCK_AHB) == clock_get(CLOCK_APB1)) {
+		tim->psc = (clock_get(CLOCK_APB1) / CONFIG_SYS_HZ_CLOCK) - 1;
 	} else {
-		tim->psc = ((clock_get(CLOCK_PCLK1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1;
+		tim->psc = ((clock_get(CLOCK_APB1) * 2) / CONFIG_SYS_HZ_CLOCK) - 1;
 	}
 	tim->arr = 0xFFFFFFFF - 1;
 	tim->cr1 = 0x01;
@@ -70,7 +70,7 @@ ulong get_timer(ulong base)
 unsigned long long get_ticks(void)
 {
 	volatile struct stm32_tim2_5 *tim =
-		(struct stm32_tim_2_5 *)STM32_TIM2_BASE;
+			(struct stm32_tim2_5*)STM32_TIM2_BASE;
 	uint32_t now;
 
 	now = tim->cnt;
@@ -88,7 +88,7 @@ unsigned long long get_ticks(void)
 void reset_timer(void)
 {
 	volatile struct stm32_tim2_5 *tim =
-		(struct stm32_tim_2_5 *)STM32_TIM2_BASE;
+			(struct stm32_tim2_5*)STM32_TIM2_BASE;
 	gd->arch.lastinc = tim->cnt;
 	gd->arch.tbl = 0;
 }

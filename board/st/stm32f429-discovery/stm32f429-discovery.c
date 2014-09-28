@@ -181,7 +181,7 @@ int dram_init(void)
 	/*
 	 * Get frequency for NS2CLK calculation.
 	 */
-	freq = clock_get(CLOCK_HCLK) / CONFIG_SYS_RAM_FREQ_DIV;
+	freq = clock_get(CLOCK_AHB) / CONFIG_SYS_RAM_FREQ_DIV;
 
 	STM32_SDRAM_FMC->sdcr1 = (
 		CONFIG_SYS_RAM_FREQ_DIV << FMC_SDCR_SDCLK_SHIFT |
@@ -292,6 +292,11 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 }
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
+
+u32 get_board_rev(void)
+{
+	return 0;
+}
 
 /*
  * Early hardware init.
