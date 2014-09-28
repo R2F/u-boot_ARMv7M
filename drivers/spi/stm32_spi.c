@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/arch/stm32_gpio.h>
 #include <asm/arch/stm32.h>
 #include <spi.h>
@@ -52,7 +53,8 @@ void spi_init(void)
 
 }
 
-int spi_cfg_stm32(stm32s, cs, max_hz, mode)
+static int spi_cfg_stm32(struct stm32_spi_slave *stm32s,
+		unsigned int cs, unsigned int max_hz, unsigned int mode)
 {
 	volatile struct stm32_spi* spi = (struct stm32_spi*)STM32_SPI4_BASE;
 

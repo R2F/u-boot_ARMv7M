@@ -48,10 +48,9 @@ static int stm32_serial_init(void)
 {
 	int i, rv;
 	volatile struct stm32_serial* base = (struct stm32_serial *)USART_BASE;
-	volatile struct stm32_rcc_regs* rcc = STM32_RCC_BASE;
 
 	/* Enable clocks to peripherals (GPIO, USART) */
-	rcc->apb2enr |= RCC_USART_ENABLE; /* USART2 enable */
+	STM32_RCC->apb2enr |= RCC_USART_ENABLE; /* USART2 enable */
 
 	/* Enable and mux GPIOs */
 	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {

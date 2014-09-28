@@ -24,7 +24,8 @@
 #define CONFIG_SYS_RAM_FREQ_DIV		2
 #define CONFIG_SYS_RAM_BASE		0xD0000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_RAM_BASE
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_RAM_BASE + (1024 * 1024))
+#define CONFIG_SYS_LOAD_ADDR		0xD0000000
+#define CONFIG_LOADADDR		0xD0000000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
@@ -43,6 +44,13 @@
 
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
+
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_REVISION_TAG
+
+#define CONFIG_STM32_HSE_HZ	8000000
 
 /*
  * Number of clock ticks in 1 sec
@@ -64,13 +72,13 @@
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2"
 #define CONFIG_BOOTCOMMAND						\
-	"fsload; bootm"
+	"mmc_spi 0; ext4load mmc 0 ${loadaddr} /xipImage; go 0xD0000001"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
  * data on the serial line may interrupt the boot sequence.
  */
-#define CONFIG_BOOTDELAY		5
+#define CONFIG_BOOTDELAY		3
 #define CONFIG_AUTOBOOT
 
 /*

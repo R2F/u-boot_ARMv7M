@@ -22,58 +22,11 @@
 #include <command.h>
 #include <asm/armv7m.h>
 
-//#include "envm.h"
-//#include "wdt.h"
-//#include "clock.h"
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_ARMCORTEXM3_SOC_INIT)
 extern void cortex_m3_soc_init(void);
 #endif
-
-/*
- * CPU specific initilization
- */
-int arch_cpu_init(void)
-{
-	/*
-	 * Initialize the eNVM driver
-	 */
-	//envm_init();
-
-	/*
-	 * Initialize the timers.
-	 */
-	//timer_init();
-
-	/*
-	 * Initialize the clock frequencies.
-	 */
-	//clock_init();
-
-	/*
-	 * Architecture number; used by the Linux kernel.
-	 */
-	//gd->bd->bi_arch_number = MACH_TYPE_STM32;
-	gd->bd->bi_arch_number = 4888;
-
-	/*
-	 * SoC configuration code that cannot be put into drivers
-	 */
-#if defined(CONFIG_ARMCORTEXM3_SOC_INIT)
-	cortex_m3_soc_init();
-#endif
-
-	/*
-	 * Address of the kernel boot parameters.
-	 * Use start of the external RAM for that;
-	 * kernel resides at offset 0x8000 in the external RAM.
-	 */
-	gd->bd->bi_boot_params = CONFIG_SYS_RAM_BASE;
-
-        return 0;
-}
 
 /*
  * This is called right before passing control to
@@ -99,15 +52,8 @@ void hw_watchdog_reset(void)
 
 /*
  * Perform the low-level reset.
- * Note that we need for this function to reside in RAM since it
- * can be used to self-upgrade U-boot in eNMV.
  */
-void
-#ifdef CONFIG_ARMCORTEXM3_RAMCODE
-	__attribute__((section(".ramcode")))
-	__attribute__((long_call))
-#endif
-	reset_cpu(ulong addr)
+void reset_cpu(ulong addr)
 {
 	/*
 	 * Perform reset but keep priority group unchanged.
