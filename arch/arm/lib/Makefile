@@ -8,7 +8,7 @@
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _ashldi3.o _ashrdi3.o _divsi3.o \
 			_lshrdi3.o _modsi3.o _udivsi3.o _umodsi3.o div0.o
 
-ifdef CONFIG_CORTEX_M
+ifdef CONFIG_ARMV7M
 obj-y	+= vectors_m.o crt0.o
 else
 ifdef CONFIG_ARM64
@@ -39,7 +39,7 @@ endif
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= sections.o
-ifdef CONFIG_CORTEX_M
+ifdef CONFIG_ARMV7M
 obj-y	+= interrupts_m.o
 else
 ifdef CONFIG_ARM64

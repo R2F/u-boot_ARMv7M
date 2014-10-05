@@ -1,4 +1,10 @@
 /*
+ * (C) Copyright 2011, 2012, 2013
+ * Yuri Tikhonov, Emcraft Systems, yur@emcraft.com
+ * Alexander Potashev, Emcraft Systems, aspotashev@emcraft.com
+ * Vladimir Khusainov, Emcraft Systems, vlad@emcraft.com
+ * Pavel Boldin, Emcraft Systems, paboldin@emcraft.com
+ *
  * (C) Copyright 2014
  * Kamil Lulko, <rev13@wp.pl>
  *
@@ -113,7 +119,6 @@ static int fmc_fsmc_setup_gpio(void)
 			goto out;
 	}
 
-	//fsmc_gpio_init_done = 1;
 out:
 	return rv;
 }
@@ -122,8 +127,6 @@ out:
  * STM32 RCC FMC specific definitions
  */
 #define STM32_RCC_ENR_FMC		(1 << 0)	/* FMC module clock  */
-
-static int dram_initialized = 0;
 
 static inline u32 _ns2clk(u32 ns, u32 freq)
 {
@@ -261,10 +264,6 @@ int dram_init(void)
 	gd->bd->bi_dram[0].size  = CONFIG_SYS_RAM_SIZE;
 
 	rv = 0;
-
-	cortex_m3_mpu_full_access();
-
-	dram_initialized = 1;
 
 	gd->ram_size = CONFIG_SYS_RAM_SIZE;
 

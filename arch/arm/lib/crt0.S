@@ -9,7 +9,7 @@
 #include <config.h>
 #include <asm-offsets.h>
 #include <linux/linkage.h>
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 #include <asm/armv7m.h>
 #endif
 
@@ -69,7 +69,7 @@ ENTRY(_main)
 #else
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	/* 8-byte alignment for ABI compliance armv7-m version */
 	mov r3, sp
 	bic r3, r3, #7
@@ -79,7 +79,7 @@ ENTRY(_main)
 #endif
 	mov	r2, sp
 	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	/* 8-byte alignment for ABI compliance armv7-m version */
 	mov r3, sp
 	bic r3, r3, #7
@@ -92,7 +92,7 @@ ENTRY(_main)
 	mov	r0, #0
 clr_gd:
 	cmp	r1, r2			/* while not at end of GD */
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	itt lo
 #endif
 	strlo	r0, [r1]		/* clear 32-bit GD word */
@@ -114,7 +114,7 @@ clr_gd:
  */
 
 	ldr	sp, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	/* 8-byte alignment for ABI compliance armv7-m version */
 	mov r3, sp
 	bic r3, r3, #7
@@ -128,7 +128,7 @@ clr_gd:
 	adr	lr, here
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
 	add	lr, lr, r0
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	orr lr, #1				/* Set bit 0 as required by Thumb-2 */
 #endif
 	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
@@ -145,7 +145,7 @@ here:
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 
 clbss_l:cmp	r0, r1			/* while not at end of BSS */
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 	itt lo
 #endif
 	strlo	r2, [r0]		/* clear 32-bit BSS word */

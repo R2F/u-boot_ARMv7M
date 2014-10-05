@@ -2,7 +2,7 @@ if TARGET_STM32F429_DISCOVERY
 
 config SYS_CPU
 	string
-	default "cortex-m"
+	default "armv7m"
 
 config SYS_BOARD
 	string

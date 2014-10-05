@@ -20,7 +20,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 		KEEP(*(.vectors))
 #else
 		*(.vectors)

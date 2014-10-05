@@ -8,7 +8,7 @@
 
 #include <linux/linkage.h>
 #include <config.h>
-#if defined(CONFIG_CORTEX_M)
+#if defined(CONFIG_ARMV7M)
 #include <asm/armv7m.h>
 #endif
 
