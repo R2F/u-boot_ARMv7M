@@ -18,6 +18,41 @@
 #include <asm/arch/fmc.h>
 #include <asm/arch/fsmc.h>
 
+static const struct stm32_gpio_dsc spi4_gpio[] = {
+		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_2}, /* SCK */
+		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_5}, /* MISO */
+		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_6} /* MOSI */
+};
+
+const struct stm32_gpio_dsc spi4_cs_gpio[] = {
+		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_4},
+		{-1, -1}
+};
+
+static int spi4_setup_gpio(void)
+{
+	int i;
+	int rv = 0;
+
+	/* Enable and mux GPIOs */
+	for (i = 0; i < ARRAY_SIZE(spi4_gpio); i++) {
+		rv = stm32_gpio_config(&spi4_gpio[i], STM32_GPIO_ROLE_SPI4);
+		if(rv) {
+			return rv;
+		}
+	}
+
+	/* Enable and mux GPIOs */
+	for (i = 0; i < ARRAY_SIZE(spi4_cs_gpio) - 1; i++) {
+		rv = stm32_gpio_config(&spi4_cs_gpio[i], STM32_GPIO_ROLE_GPOUT);
+		if(rv) {
+			return rv;
+		}
+	}
+
+	return 0;
+}
+
 static const struct stm32_gpio_dsc ext_ram_fsmc_fmc_gpio[] = {
 	/* Chip is LQFP144, see DM00077036.pdf for details */
 	/* 79, FMC_D15 */
@@ -302,6 +337,13 @@ u32 get_board_rev(void)
  */
 int board_init(void)
 {
+	int res;
+
+	res = spi4_setup_gpio();
+	if(res) {
+		return res;
+	}
+
 	return 0;
 }
 
