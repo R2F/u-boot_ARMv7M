@@ -24,9 +24,9 @@ __irq_entry:
 
    .section  .vectors
 
-ENTRY(vector_table)
+ENTRY(_start)
 	.long	CONFIG_SYS_INIT_SP_ADDR		@ 0 - Reset stack pointer
-	.long	_start				@ 1 - Reset
+	.long	reset				@ 1 - Reset
 	.long	__invalid_entry			@ 2 - NMI
 	.long	__invalid_entry			@ 3 - HardFault
 	.long	__invalid_entry			@ 4 - MemManage

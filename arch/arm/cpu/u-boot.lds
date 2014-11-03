@@ -20,11 +20,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
-#if defined(CONFIG_ARMV7M)
-		KEEP(*(.vectors))
-#else
 		*(.vectors)
-#endif
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}

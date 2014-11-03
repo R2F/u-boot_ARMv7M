@@ -8,11 +8,8 @@
 #include <config.h>
 #include <linux/linkage.h>
 
-.globl	_start
-.type _start, %function
-_start:
-	b	reset
-
+.globl	reset
+.type reset, %function
 reset:
 	bl	_main
 

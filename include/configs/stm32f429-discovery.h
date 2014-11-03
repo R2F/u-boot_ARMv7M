@@ -11,7 +11,7 @@
 #define CONFIG_STM32F4DISCOVERY
 #define CONFIG_SYS_GENERIC_BOARD
 
-#define DEBUG
+/*#define DEBUG*/
 
 #define CONFIG_BOARD_LATE_INIT
 
