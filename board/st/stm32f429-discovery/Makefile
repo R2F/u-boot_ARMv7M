@@ -8,4 +8,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= stm32f429-discovery.o
+obj-y	+= stm32f429-discovery.o
+obj-y	+= ili9341.o

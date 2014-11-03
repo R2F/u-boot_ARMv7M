@@ -18,6 +18,71 @@
 #include <asm/arch/fmc.h>
 #include <asm/arch/fsmc.h>
 
+/* LCD related stuff begin */
+const struct stm32_gpio_dsc lcd_wrx_gpio = {
+		STM32_GPIO_PORT_D, STM32_GPIO_PIN_13
+};
+
+static const struct stm32_gpio_dsc lcd_af9_gpio[] = {
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_0},	/* R3 */
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_1},	/* R6 */
+		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_10},	/* G3 */
+		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_12},	/* B4 */
+};
+
+static const struct stm32_gpio_dsc lcd_af14_gpio[] = {
+		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_10},	/* R2 */
+		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_11},	/* R4 */
+		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_12},	/* R5 */
+		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_6},	/* R7 */
+
+		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_6},	/* G2 */
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_10},	/* G4 */
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_11},	/* G5 */
+		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_7},	/* G6 */
+		{STM32_GPIO_PORT_D, STM32_GPIO_PIN_3},	/* G7 */
+
+		{STM32_GPIO_PORT_D, STM32_GPIO_PIN_6},	/* B2 */
+		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_11},	/* B3 */
+		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_3},	/* B5 */
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_8},	/* B6 */
+		{STM32_GPIO_PORT_B, STM32_GPIO_PIN_9},	/* B7 */
+
+		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_6},	/* HSYNC */
+		{STM32_GPIO_PORT_A, STM32_GPIO_PIN_4},	/* VSYNC */
+		{STM32_GPIO_PORT_G, STM32_GPIO_PIN_7},	/* PIXCLK */
+		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_10},	/* DE */
+};
+
+static int lcd_setup_gpio(void)
+{
+	int i;
+	int rv = 0;
+
+	rv = stm32_gpio_config(&lcd_wrx_gpio,
+			STM32_GPIO_ROLE_GPOUT);
+	if (rv)
+		goto out;
+
+	for (i = 0; i < ARRAY_SIZE(lcd_af9_gpio); i++) {
+		rv = stm32_gpio_config(&lcd_af9_gpio[i],
+				STM32_GPIO_ROLE_LTDC_AF9);
+		if (rv)
+			goto out;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(lcd_af14_gpio); i++) {
+		rv = stm32_gpio_config(&lcd_af14_gpio[i],
+				STM32_GPIO_ROLE_LTDC_AF14);
+		if (rv)
+			goto out;
+	}
+
+out:
+	return rv;
+}
+/* LCD related stuff end */
+
 static const struct stm32_gpio_dsc spi4_gpio[] = {
 		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_2}, /* SCK */
 		{STM32_GPIO_PORT_E, STM32_GPIO_PIN_5}, /* MISO */
@@ -38,7 +103,7 @@ static int spi4_setup_gpio(void)
 	for (i = 0; i < ARRAY_SIZE(spi4_gpio); i++) {
 		rv = stm32_gpio_config(&spi4_gpio[i], STM32_GPIO_ROLE_SPI4);
 		if(rv) {
-			return rv;
+			goto out;
 		}
 	}
 
@@ -46,11 +111,61 @@ static int spi4_setup_gpio(void)
 	for (i = 0; i < ARRAY_SIZE(spi4_cs_gpio) - 1; i++) {
 		rv = stm32_gpio_config(&spi4_cs_gpio[i], STM32_GPIO_ROLE_GPOUT);
 		if(rv) {
-			return rv;
+			goto out;
 		}
 	}
 
-	return 0;
+out:
+	return rv;
+}
+
+const struct stm32_gpio_dsc spi5_cs_gpio[] = {
+		{STM32_GPIO_PORT_C, STM32_GPIO_PIN_2},
+		{-1, -1}
+};
+
+static const struct stm32_gpio_dsc spi5_gpio[] = {
+		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_7}, /* SCK */
+		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_8}, /* MISO */
+		{STM32_GPIO_PORT_F, STM32_GPIO_PIN_9}, /* MOSI */
+};
+
+static int spi5_setup_gpio(void)
+{
+	int i;
+	int rv = 0;
+
+	/* Enable and mux GPIOs */
+	for (i = 0; i < ARRAY_SIZE(spi5_cs_gpio) - 1; i++) {
+		rv = stm32_gpio_config(&spi5_cs_gpio[i], STM32_GPIO_ROLE_GPOUT);
+		if(rv) {
+			goto out;
+		}
+	}
+
+	for (i = 0; i < ARRAY_SIZE(spi5_gpio); i++) {
+		rv = stm32_gpio_config(&spi5_gpio[i],
+				STM32_GPIO_ROLE_SPI5);
+		if (rv)
+			goto out;
+	}
+
+out:
+	return rv;
+}
+
+void lcd_show_board_info(void)
+{
+	lcd_printf ("Varcain was here\n");
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
 }
 
 static const struct stm32_gpio_dsc ext_ram_fsmc_fmc_gpio[] = {
@@ -344,10 +459,24 @@ int board_init(void)
 		return res;
 	}
 
+	res = spi5_setup_gpio();
+	if(res) {
+		return res;
+	}
+
+	res = lcd_setup_gpio();
+	if(res) {
+		return res;
+	}
+
 	return 0;
 }
 
 int board_late_init(void)
 {
-	return 0;
+	int res;
+
+	res = ili9341_init();
+
+	return res;
 }

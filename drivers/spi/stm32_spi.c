@@ -91,6 +91,8 @@ struct stm32_spi_slave {
 
 #define SPI_I2SCFGR_I2SMOD	(1 << 11)
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void spi_init(void)
 {
 
@@ -178,7 +180,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	ret = spi_cfg_stm32(&stm32_slave->slave, cs, max_hz, mode);
 	if (ret) {
-		printf("stm32_spi: cannot setup SPI controller\n");
+		if(gd->have_console) {
+			printf("stm32_spi: cannot setup SPI controller\n");
+		}
 		free(stm32_slave);
 		return NULL;
 	}
@@ -280,7 +284,9 @@ void spi_set_speed(struct spi_slave *slave, uint hz)
 		int spi_clk = apb_clk / (1 << (i + 1));
 		if(spi_clk <= hz) {
 			spi->cr1 |= (i << SPI_CR1_BR_SHIFT);
-			printf("stm32_spi: spi %d clock set to %d\n", slave->bus, spi_clk);
+			if(gd->have_console) {
+				printf("stm32_spi: spi %d clock set to %d\n", slave->bus, spi_clk);
+			}
 			break;
 		}
 	}

@@ -55,6 +55,8 @@ struct stm32_rcc_regs {
 	u32	rsv6[2];
 	u32	sscgr;		/* RCC spread spectrum clock generation */
 	u32	plli2scfgr;	/* RCC PLLI2S configuration */
+	u32 pllsaicfgr;
+	u32 dckcfgr;
 };
 
 struct stm32_pwr_regs {

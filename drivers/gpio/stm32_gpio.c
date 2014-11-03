@@ -78,6 +78,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * AF5 selection
  */
 #define STM32_GPIO_AF_SPI4	0x05
+#define STM32_GPIO_AF_SPI5	0x05
 
 /*
  * AF7 selection
@@ -94,6 +95,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define STM32_GPIO_AF_USART6	0x08
 
 /*
+ * AF9 selection
+ */
+#define STM32_GPIO_AF9_LCD	0x09
+
+/*
  * AF11 selection
  */
 #define STM32_GPIO_AF_MAC	0x0B
@@ -102,6 +108,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * AF12 selection
  */
 #define STM32_GPIO_AF_FSMC	0x0C
+
+/*
+ * AF14 selection
+ */
+#define STM32_GPIO_AF14_LCD	0x0E
 
 /*
  * GPIO register map
@@ -133,9 +144,10 @@ static const unsigned long io_base[] = {
 static const u32 af_val[STM32_GPIO_ROLE_LAST] = {
 	STM32_GPIO_AF_USART1, STM32_GPIO_AF_USART2, STM32_GPIO_AF_USART3,
 	STM32_GPIO_AF_USART4, STM32_GPIO_AF_USART5, STM32_GPIO_AF_USART6,
-	STM32_GPIO_AF_SPI4, STM32_GPIO_AF_MAC,
+	STM32_GPIO_AF9_LCD, STM32_GPIO_AF_SPI4, STM32_GPIO_AF_SPI5,
+	STM32_GPIO_AF_MAC,
 	(u32)-1,
-	STM32_GPIO_AF_FSMC,
+	STM32_GPIO_AF_FSMC, STM32_GPIO_AF14_LCD,
 	(u32)-1
 };
 
@@ -180,6 +192,7 @@ s32 stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 		mode   = STM32_GPIO_MODE_AF;
 		break;
 	case STM32_GPIO_ROLE_SPI4:
+	case STM32_GPIO_ROLE_SPI5:
 		otype  = STM32_GPIO_OTYPE_PP;
 		ospeed = STM32_GPIO_SPEED_50M;
 		pupd   = STM32_GPIO_PUPD_NO;
@@ -190,6 +203,13 @@ s32 stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 	case STM32_GPIO_ROLE_FSMC:
 		otype  = STM32_GPIO_OTYPE_PP;
 		ospeed = STM32_GPIO_SPEED_100M;
+		pupd   = STM32_GPIO_PUPD_NO;
+		mode   = STM32_GPIO_MODE_AF;
+		break;
+	case STM32_GPIO_ROLE_LTDC_AF9:
+	case STM32_GPIO_ROLE_LTDC_AF14:
+		otype  = STM32_GPIO_OTYPE_PP;
+		ospeed = STM32_GPIO_SPEED_50M;
 		pupd   = STM32_GPIO_PUPD_NO;
 		mode   = STM32_GPIO_MODE_AF;
 		break;
