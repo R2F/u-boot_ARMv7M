@@ -11,6 +11,8 @@
 #define CONFIG_STM32F4DISCOVERY
 #define CONFIG_SYS_GENERIC_BOARD
 
+#define CONFIG_MACH_TYPE 0x000011e0
+
 /*#define DEBUG*/
 
 #define CONFIG_BOARD_LATE_INIT
@@ -26,8 +28,8 @@
 #define CONFIG_SYS_RAM_FREQ_DIV		2
 #define CONFIG_SYS_RAM_BASE		0xD0000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_RAM_BASE
-#define CONFIG_SYS_LOAD_ADDR		0xD0000000
-#define CONFIG_LOADADDR		0xD0000000
+#define CONFIG_SYS_LOAD_ADDR		0xD0200000
+#define CONFIG_LOADADDR		0xD0200000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
@@ -85,7 +87,7 @@
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2"
 #define CONFIG_BOOTCOMMAND						\
-	"mmc_spi 0; ext4load mmc 0 ${loadaddr} /xipImage; go 0xD0000001"
+	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage; bootm"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage

@@ -454,6 +454,8 @@ int board_init(void)
 {
 	int res;
 
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
 	res = spi4_setup_gpio();
 	if(res) {
 		return res;
