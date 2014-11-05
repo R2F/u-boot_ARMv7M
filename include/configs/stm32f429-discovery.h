@@ -13,6 +13,8 @@
 
 #define CONFIG_MACH_TYPE 0x000011e0
 
+#define CONFIG_OF_LIBFDT
+
 /*#define DEBUG*/
 
 #define CONFIG_BOARD_LATE_INIT
@@ -85,9 +87,11 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2"
+	"earlyprintk"
 #define CONFIG_BOOTCOMMAND						\
-	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage; bootm"
+	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage;" \
+	"ext4load mmc 0 0xD0100000 /stm32f429-disco.dtb;" \
+	"bootm ${loadaddr} - 0xD0100000"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
