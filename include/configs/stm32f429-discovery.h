@@ -30,8 +30,8 @@
 #define CONFIG_SYS_RAM_FREQ_DIV		2
 #define CONFIG_SYS_RAM_BASE		0xD0000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_RAM_BASE
-#define CONFIG_SYS_LOAD_ADDR		0xD0200000
-#define CONFIG_LOADADDR		0xD0200000
+#define CONFIG_SYS_LOAD_ADDR		0xD0400000
+#define CONFIG_LOADADDR		0xD0400000
 
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
@@ -89,9 +89,7 @@
 #define CONFIG_BOOTARGS							\
 	"earlyprintk"
 #define CONFIG_BOOTCOMMAND						\
-	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage;" \
-	"ext4load mmc 0 0xD0100000 /stm32f429-disco.dtb;" \
-	"bootm ${loadaddr} - 0xD0100000"
+	"mmc_spi 3:0; ext4load mmc 0 ${loadaddr} /uImage;bootm"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
